@@ -25,6 +25,7 @@ server.post('/api/users', (req, res) => {
 });
 
 
+
 server.get('/api/users', (req, res) => {
     db
         .find()
@@ -54,7 +55,6 @@ server.get('/api/users/:id', (req, res) => {
 
 
 server.delete('/api/users/:id', (req, res) => {
-    // const id = req.body.id;
     const userID = req.params.id;
 
     db 
@@ -71,6 +71,7 @@ server.delete('/api/users/:id', (req, res) => {
         })
 })
 
+// Not sure why code below does NOT work
 //     !userID
 //     ? res
 //         .status(404)
@@ -84,6 +85,31 @@ server.delete('/api/users/:id', (req, res) => {
 //             res.status(500).json ({  error: "The user could not be removed"  })
 //         })
 // })
+
+server.put('/api/users/:id', (req, res) => {
+    const { id }   = req.params;
+    const changes = req.body;
+
+    !id
+    
+    ? res
+        .status(404)
+        .json({ message: "The user with the specified ID does not exist." })
+
+    : db 
+        .update (id, changes)
+        .then(updated => {
+            if (!changes.name || !changes.bio) {
+                res.status(404).json({  errorMessage: "Please provide name and bio for the user."  });
+            } else {
+                res.status(200).json(updated); 
+            } 
+      })
+      .catch(error => {
+        res.status(500).json ({  error: "The user information could not be modified."  });
+    })
+
+})
 
 
 server.listen(5000, () => {
